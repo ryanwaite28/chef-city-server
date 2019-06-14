@@ -1,0 +1,28 @@
+models.ModelPictures = sequelize.define('model_pictures', {
+  model_id:          { type: Sequelize.INTEGER, allowNull: false },
+  model_table:       { type: Sequelize.STRING(500), allowNull: true, defaultValue: '' },
+  caption:           { type: Sequelize.STRING(500), allowNull: true, defaultValue: '' },
+  image_link:        { type: Sequelize.STRING(500), allowNull: false, defaultValue: '' },
+  image_id:          { type: Sequelize.STRING(500), allowNull: false, defaultValue: '' },
+  date_created:      { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+  uuid:              { type: Sequelize.STRING, defaultValue: Sequelize.UUIDV1 }
+}, {
+  freezeTableName: true,
+  indexes: [{ unique: true, fields: ['uuid'] }]
+});
+
+
+{ review.writer.id === you.id &&
+  <p className="">
+    <button className="button button-clear" 
+      type="button" 
+      onClick={() => this.props.deleteReview(review)}>
+      Delete
+    </button>
+  </p>
+}
+
+
+"react-install": "cd react/ && yarn install",
+"react-build": "cd react/ && yarn run build",
+"build": "yarn run react-install && yarn run react-build && yarn run addprodbuild"
