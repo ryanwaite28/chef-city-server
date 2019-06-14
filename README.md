@@ -1,4 +1,4 @@
-# chef-city-Server
+# chef-city-server
 ### Back End
 
 Website for sharing/rating recipes and empowering chefs.
