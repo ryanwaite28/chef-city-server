@@ -40,6 +40,7 @@ function NewReview_EMAIL(data) {
 /* --- Exports --- */
 
 module.exports = {
+  nunjucks,
   installExpressApp,
   UserCardMini_DOM,
   SignedUp_EMAIL,

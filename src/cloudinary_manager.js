@@ -22,13 +22,24 @@ function store(file, public_id) {
   return new Promise((resolve, reject) => {
     upload_file(file)
     .then(filedata => {
-      const configObject = {
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
-      };
-      
-      cloudinary.config(configObject);
+      const cloud_name = process.env.CLOUDINARY_CLOUD_NAME,
+        api_key = process.env.CLOUDINARY_API_KEY,
+        api_secret = process.env.CLOUDINARY_API_SECRET;
+
+      const oneCredentialMissing = (
+        !cloud_name || !api_key || !api_secret
+      );
+
+      if(oneCredentialMissing) {
+        console.log({ 
+          file, public_id, cloud_name, api_key, api_secret
+        });
+        const msg = `One cloudinary credential is missing; upload attempt canceled.`;
+        console.log({ error: msg });
+        return reject({ error: msg });
+      }
+
+      cloudinary.config({ cloud_name, api_key, api_secret });
 
       if(public_id) {
         cloudinary.v2.uploader.destroy(public_id, function(error, result) {
