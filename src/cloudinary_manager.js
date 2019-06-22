@@ -20,25 +20,20 @@ function upload_file(file) {
 
 function store(file, public_id) {
   return new Promise((resolve, reject) => {
-    upload_file(file)
-    .then(filedata => {
-      const cloud_name = process.env.CLOUDINARY_CLOUD_NAME,
-        api_key = process.env.CLOUDINARY_API_KEY,
-        api_secret = process.env.CLOUDINARY_API_SECRET;
+    const cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
+    const api_key = process.env.CLOUDINARY_API_KEY;
+    const api_secret = process.env.CLOUDINARY_API_SECRET;
 
-      const oneCredentialMissing = (
-        !cloud_name || !api_key || !api_secret
-      );
+    const oneCredentialMissing = (!cloud_name || !api_key || !api_secret);
 
-      if(oneCredentialMissing) {
-        console.log({ 
-          file, public_id, cloud_name, api_key, api_secret
-        });
-        const msg = `One cloudinary credential is missing; upload attempt canceled.`;
-        console.log({ error: msg });
-        return reject({ error: msg });
-      }
+    if(oneCredentialMissing) {
+      console.log({ file, public_id, cloud_name, api_key, api_secret });
+      const errorObj = { msg: `One cloudinary credential is missing; upload attempt canceled.` };
+      console.log(errorObj);
+      return reject(errorObj);
+    }
 
+    upload_file(file).then(filedata => {
       cloudinary.config({ cloud_name, api_key, api_secret });
 
       if(public_id) {
@@ -51,6 +46,7 @@ function store(file, public_id) {
           );
         });
       }
+
       cloudinary.uploader.upload(filedata.filename, function(result) {
         fs.unlink(filedata.filename, (err) => {
           if(err) { console.log(err); }
@@ -63,8 +59,7 @@ function store(file, public_id) {
         resolve({ result, filedata }) : 
         reject({ error: result });
       })
-    })
-    .catch({ error: true });
+    }).catch(error => { reject({ e: error, error: true }); });
   });
 }
 

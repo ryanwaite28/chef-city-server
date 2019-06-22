@@ -36,7 +36,7 @@ function delete_package(request, response) {
   if(!chamber.validateInteger(package_id)) {
     return response.json({ error: true, message: '"package_id" is required; must be integer/number' });
   }
-  models.Packages.destroy({where: { id: package_id, owner_id: response.locals.you.id }})
+  models.Recipes.destroy({where: { id: package_id, owner_id: response.locals.you.id }})
   .then(res => {
     return response.json({ res, message: 'Package Deleted!' });
   })
@@ -61,7 +61,7 @@ function decline_package_delivery_request(request, response) {
       return response.json({ error: true, message: 'delivery request not found' });
     }
 
-    const packageData = await models.Packages.findOne({ where: { id: delivery_request.dataValues.package_id }});
+    const packageData = await models.Recipes.findOne({ where: { id: delivery_request.dataValues.package_id }});
     if (!packageData) {
       return response.json({ error: true, message: 'package not found' });
     }

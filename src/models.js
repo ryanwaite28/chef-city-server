@@ -91,6 +91,8 @@ models.Recipes = sequelize.define('recipes', {
   creator_id:                  { type: Sequelize.INTEGER, allowNull: false, references: { model: models.Users, key: 'id' } },
   title:                       { type: Sequelize.STRING, allowNull: false, defaultValue: '' },
   desc:                        { type: Sequelize.TEXT, allowNull: false, defaultValue: '' },
+  tags:                        { type: Sequelize.TEXT, allowNull: false, defaultValue: '' },
+  ingredients:                 { type: Sequelize.TEXT, allowNull: false, defaultValue: '' },
   image_link:                  { type: Sequelize.STRING(500), allowNull: true, defaultValue: '' },
   image_id:                    { type: Sequelize.STRING(500), allowNull: true, defaultValue: '' },
   date_created:                { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
@@ -99,6 +101,45 @@ models.Recipes = sequelize.define('recipes', {
   freezeTableName: true,
   underscored: true,
   modelName: 'recipe',
+  indexes: [{ unique: true, fields: ['uuid'] }]
+});
+
+models.RecipeLikes = sequelize.define('recipe_likes', {
+  recipe_id:       { type: Sequelize.INTEGER, allowNull: false, references: { model: models.Recipes, key: 'id' } },
+  user_id:         { type: Sequelize.INTEGER, allowNull: false, references: { model: models.Users, key: 'id' } },
+  date_created:    { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+  uuid:            { type: Sequelize.STRING, defaultValue: Sequelize.UUIDV1 }
+}, {
+  freezeTableName: true,
+  underscored: true,
+  modelName: 'recipe_like',
+  indexes: [{ unique: true, fields: ['uuid'] }]
+});
+
+models.RecipeComments = sequelize.define('recipe_comments', {
+  recipe_id:       { type: Sequelize.INTEGER, allowNull: false, references: { model: models.Recipes, key: 'id' } },
+  user_id:         { type: Sequelize.INTEGER, allowNull: false, references: { model: models.Users, key: 'id' } },
+  body:            { type: Sequelize.TEXT, allowNull: false, defaultValue: '' },
+  image_link:      { type: Sequelize.STRING(500), allowNull: true, defaultValue: '' },
+  image_id:        { type: Sequelize.STRING(500), allowNull: true, defaultValue: '' },
+  date_created:    { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+  uuid:            { type: Sequelize.STRING, defaultValue: Sequelize.UUIDV1 }
+}, {
+  freezeTableName: true,
+  underscored: true,
+  modelName: 'recipe_comment',
+  indexes: [{ unique: true, fields: ['uuid'] }]
+});
+
+models.CommentLikes = sequelize.define('comment_likes', {
+  comment_id:      { type: Sequelize.INTEGER, allowNull: false, references: { model: models.RecipeComments, key: 'id' } },
+  user_id:         { type: Sequelize.INTEGER, allowNull: false, references: { model: models.Users, key: 'id' } },
+  date_created:    { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+  uuid:            { type: Sequelize.STRING, defaultValue: Sequelize.UUIDV1 }
+}, {
+  freezeTableName: true,
+  underscored: true,
+  modelName: 'comment_like',
   indexes: [{ unique: true, fields: ['uuid'] }]
 });
 

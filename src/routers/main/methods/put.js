@@ -338,17 +338,17 @@ function update_package(request, response) {
         }
       }
 
-      const package_update = await models.Packages.update(dataObj, { 
+      const package_update = await models.Recipes.update(dataObj, { 
         where: { 
           id: request.params.package_id, 
-          owner_id: response.locals.you.id 
+          creator_id: response.locals.you.id 
         } 
       });
 
-      const package_model = await models.Packages.findOne({ where: { id: request.params.package_id } });
+      const package_model = await models.Recipes.findOne({ where: { id: request.params.package_id } });
       const packageData = {
         ...package_model.dataValues,
-        owner: { ...response.locals.you }
+        creator: { ...response.locals.you }
       };
       return response.json({ package: packageData, message: 'Package Updated!' });
     }
@@ -419,7 +419,7 @@ function accept_package_delivery_request(request, response) {
     }
 
     const package_id = delivery_request.dataValues.package_id;
-    const packageData = await models.Packages.findOne({ where: { id: package_id }});
+    const packageData = await models.Recipes.findOne({ where: { id: package_id }});
     if (!packageData) {
       return response.json({ error: true, message: 'package not found' });
     }
@@ -430,13 +430,13 @@ function accept_package_delivery_request(request, response) {
       return response.json({ error: true, message: 'someone is already delivering this package' });
     }
 
-    await models.Packages.update(
+    await models.Recipes.update(
       { helper_id: delivery_request.dataValues.user_id },
       { where: { id: packageData.id, owner_id: response.locals.you.id }}
     );
     await models.DeliveryRequests.destroy({ where: { id: package_delivery_request_id }});
 
-    const packageObj = await models.Packages.findOne({ 
+    const packageObj = await models.Recipes.findOne({ 
       where: { id: package_id },
       include: [{
         model: models.Users,
@@ -478,7 +478,7 @@ function package_mark_as_delivered(request, response) {
       return response.json({ error: true, message: 'invalid request: not authorized' });
     }
 
-    await models.Packages.update({ fulfilled: true }, { where: { id: package_id } });
+    await models.Recipes.update({ fulfilled: true }, { where: { id: package_id } });
 
     const packageTrackingUpdateModel = await models.PackageTrackingUpdates.create({
       package_id,

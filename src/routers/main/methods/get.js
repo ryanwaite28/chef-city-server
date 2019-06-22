@@ -65,6 +65,20 @@ function get_user_by_username(request, response) {
   })
 }
 
+function get_user_by_id(request, response) {
+  let { id } = request.params;
+  models.Users.findOne({ where: { id } })
+  .then(u => {
+    if (u) {
+      let user = u.dataValues;
+      delete user['password'];
+      return response.json({ user });
+    } else {
+      return response.json({ error: true, message: 'no user found', user: null });
+    }
+  })
+}
+
 function get_user_reviews(request, response) {
   let { user_id, review_id } = request.params;
   models.UserRatings.findAll({
@@ -92,39 +106,35 @@ function get_user_reviews(request, response) {
   })
 }
 
-function get_package_by_id(request, response) {
-  let { package_id } = request.params;
-  models.Packages.findOne({
-    where: { id: package_id },
+function get_recipe_by_id(request, response) {
+  let { recipe_id } = request.params;
+  models.Recipes.findOne({
+    where: { id: recipe_id },
     include: [{
       model: models.Users,
       as: 'owner',
-      attributes: { exclude: ['password'] }
-    }, {
-      model: models.Users,
-      as: 'helper',
       attributes: { exclude: ['password'] }
     }]
   })
-  // .then(package_model => {
-  //   console.log('package_model', package_model);
-  //   return models.Users.findOne({ where: { id: package_model.dataValues.owner_id } }).then(u => {
-  //     return { ...package_model.dataValues, owner: { ...u.dataValues } }
+  // .then(recipe_model => {
+  //   console.log('recipe_model', recipe_model);
+  //   return models.Users.findOne({ where: { id: recipe_model.dataValues.owner_id } }).then(u => {
+  //     return { ...recipe_model.dataValues, owner: { ...u.dataValues } }
   //   })
   // })
-  .then(packageData => {
-    return response.json({ packageData });
+  .then(recipeData => {
+    return response.json({ recipeData });
   })
   .catch(error => {
     console.log(error);
-    return response.json({ error: true, packageData: null });
+    return response.json({ error: true, recipeData: null });
   })
 }
 
-function get_user_packages(request, response) {
-  let { owner_id, package_id } = request.params;
-  models.Packages.findAll({
-    where: (!package_id ? { owner_id } : { owner_id, id: { [Op.lt]: package_id } }),
+function get_user_recipes(request, response) {
+  let { owner_id, recipe_id } = request.params;
+  models.Recipes.findAll({
+    where: (!recipe_id ? { owner_id } : { owner_id, id: { [Op.lt]: recipe_id } }),
     include: [{
       model: models.Users,
       as: 'owner',
@@ -137,29 +147,8 @@ function get_user_packages(request, response) {
     limit: 5,
     order: [["id","DESC"]]
   })
-  .then(packages => {
-    return response.json({ packages });
-  })
-}
-
-function get_user_delivering(request, response) {
-  let { helper_id, package_id } = request.params;
-  models.Packages.findAll({
-    where: (!package_id ? { helper_id } : { helper_id, id: { [Op.lt]: package_id } }),
-    include: [{
-      model: models.Users,
-      as: 'owner',
-      attributes: { exclude: ['password'] }
-    }, {
-      model: models.Users,
-      as: 'helper',
-      attributes: { exclude: ['password'] }
-    }],
-    limit: 5,
-    order: [["id","DESC"]]
-  })
-  .then(packages => {
-    return response.json({ packages });
+  .then(recipes => {
+    return response.json({ recipes });
   })
 }
 
@@ -184,20 +173,20 @@ function get_random_users(request, response) {
   })
 }
 
-function check_delivery_request(request, response) {
-  const package_id = parseInt(request.params.package_id);
-  const user_id = parseInt(request.params.user_id);
-  models.DeliveryRequests.findOne({ where: { package_id, user_id } })
+function check_cook_request(request, response) {
+  const recipe_id = parseInt(request.params.recipe_id);
+  const chef_id = parseInt(request.params.chef_id);
+  models.CookRequests.findOne({ where: { recipe_id, chef_id } })
   .then(resp => {
     return response.json({ deliver_request: resp && resp.dataValues || resp });
   })
 }
 
-function check_package_delivery_requests(request, response) {
-  const { package_id, delivery_request_id } = request.params;
+function check_recipe_cook_requests(request, response) {
+  const { recipe_id, cook_request_id } = request.params;
   
-  models.DeliveryRequests.findAll({
-    where: (!delivery_request_id ? { package_id } : { package_id, id: { [Op.lt]: delivery_request_id } }),
+  models.CookRequests.findAll({
+    where: (!cook_request_id ? { recipe_id } : { recipe_id, id: { [Op.lt]: cook_request_id } }),
     include: [{
       model: models.Users,
       attributes: { exclude: ['password'] },
@@ -206,21 +195,21 @@ function check_package_delivery_requests(request, response) {
     limit: 5,
     order: [["id","DESC"]]
   })
-  .then(package_delivery_requests => {
-    return response.json({ package_delivery_requests });
+  .then(recipe_cook_requests => {
+    return response.json({ recipe_cook_requests });
   })
 }
 
-function get_package_tracking_updates(request, response) {
-  const { package_id, package_tracking_update_id } = request.params;
+function get_cook_request_updates(request, response) {
+  const { recipe_id, cook_request_update_id } = request.params;
   
-  models.PackageTrackingUpdates.findAll({
-    where: (!package_tracking_update_id ? { package_id } : { package_id, id: { [Op.lt]: package_tracking_update_id } }),
+  models.CookRequestUpdates.findAll({
+    where: (!cook_request_update_id ? { recipe_id } : { recipe_id, id: { [Op.lt]: cook_request_update_id } }),
     limit: 5,
     order: [["id","DESC"]]
   })
-  .then(package_tracking_updates => {
-    return response.json({ package_tracking_updates });
+  .then(cook_request_updates => {
+    return response.json({ cook_request_updates });
   })
   .catch(error => {
     console.log(error);
@@ -228,7 +217,7 @@ function get_package_tracking_updates(request, response) {
   })
 }
 
-function get_search_packages(request, response) {
+function get_search_recipes(request, response) {
   (async function(){
     const origin = request.query.origin;
     const destination = request.query.destination;
@@ -250,7 +239,7 @@ function get_search_packages(request, response) {
 
     console.log(query);
 
-    const searchResults = await models.Packages.findAll({
+    const searchResults = await models.Recipes.findAll({
       limit: 10,
       where: query,
       include: [{
@@ -261,7 +250,7 @@ function get_search_packages(request, response) {
     });
 
     return response.json({
-      packages: searchResults
+      recipes: searchResults
     });
   })()
 }
@@ -275,13 +264,13 @@ module.exports = {
   sign_out,
   check_session,
   get_user_by_username,
+  get_user_by_id,
   get_user_reviews,
-  get_user_packages,
-  get_user_delivering,
+  get_user_recipes,
   get_random_users,
-  get_package_by_id,
-  check_delivery_request,
-  check_package_delivery_requests,
-  get_package_tracking_updates,
-  get_search_packages,
+  get_recipe_by_id,
+  check_cook_request,
+  check_recipe_cook_requests,
+  get_cook_request_updates,
+  get_search_recipes,
 }

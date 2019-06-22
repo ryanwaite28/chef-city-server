@@ -191,7 +191,7 @@ function create_review(request, response) {
   })()
 }
 
-function create_package(request, response) {
+function create_recipe(request, response) {
   (async function(){
     try {
       let {
@@ -252,7 +252,7 @@ function create_package(request, response) {
         penalty: parseInt(penalty),
       };
 
-      let image_file = request.files && request.files.package_icon_input || null;
+      let image_file = request.files && request.files.recipe_icon_input || null;
       if(image_file) {
         let type = image_file.mimetype.split('/')[1];
         if(!chamber.allowed_images.includes(type)) {
@@ -264,18 +264,18 @@ function create_package(request, response) {
         }
       }
 
-      const new_package_model = await models.Packages.create(dataObj);
+      const new_recipe_model = await models.Recipes.create(dataObj);
 
-      const new_package = {
-        ...new_package_model.dataValues,
+      const new_recipe = {
+        ...new_recipe_model.dataValues,
         owner: { ...response.locals.you }
       };
 
-      return response.json({ new_package, message: 'Package Created!' });
+      return response.json({ new_recipe, message: 'Package Created!' });
     }
     catch(e) {
       console.log('error', e);
-      return response.json({ e, error: true, message: 'Could not create package...' });
+      return response.json({ e, error: true, message: 'Could not create recipe...' });
     };
   })()
 }
@@ -322,24 +322,24 @@ function submit_reset_password_request(request, response) {
   })()
 }
 
-function toggle_delivery_request(request, response) {
+function toggle_cook_request(request, response) {
   (async function(){
     try {
       const 
-        package_id = parseInt(request.params.package_id), 
+        recipe_id = parseInt(request.params.recipe_id), 
         user_id = parseInt(request.params.user_id);
       
       if (user_id !== response.locals.you.id) {
         return response.json({ error: true, message: 'invalid user id' });
       }
 
-      const packageData = await models.Packages.findOne({ where: { id: package_id } });
-      const owner_id = packageData.dataValues.owner_id;
+      const recipeData = await models.Recipes.findOne({ where: { id: recipe_id } });
+      const owner_id = recipeData.dataValues.owner_id;
       const check = await models.DeliveryRequests.findOne({ 
-        where: { package_id, user_id },
+        where: { recipe_id, user_id },
         // include: [{
-        //   model: models.Packages,
-        //   as: 'package',
+        //   model: models.Recipes,
+        //   as: 'recipe',
         // },
         // {
         //   model: models.Users,
@@ -354,22 +354,22 @@ function toggle_delivery_request(request, response) {
         request.io.emit(eventName, { 
           event: request.EVENT_TYPES.DELIVERY_REQUEST_CANCELED,
           message: `Delivery request canceled!`,
-          deliver_request: resp,
+          cook_request: resp,
         });
         
       } else {
-        resp = await models.DeliveryRequests.create({ package_id, user_id });
+        resp = await models.DeliveryRequests.create({ recipe_id, user_id });
         request.io.emit(eventName, {
           event: request.EVENT_TYPES.NEW_DELIVERY_REQUEST,
-          message: `New delivery request!`,
-          deliver_request: resp,
+          message: `New cook request!`,
+          cook_request: resp,
         });
       }
         
 
       return response.json({ 
         resp, 
-        deliver_request: !check, 
+        cook_request: !check, 
         message: !!check ? `Request sent successfully!` : `Declined request`
       }); 
     } catch (e) {
@@ -379,21 +379,21 @@ function toggle_delivery_request(request, response) {
   })()
 }
 
-function add_package_tracking_update(request, response) {
+function add_cook_request_update(request, response) {
   (async function(){
-    const package_id = parseInt(request.params.package_id, 10);
-    if (!package_id) {
-      return response.json({ error: true, message: 'package id is required in the request route' });
+    const recipe_id = parseInt(request.params.recipe_id, 10);
+    if (!recipe_id) {
+      return response.json({ error: true, message: 'recipe id is required in the request route' });
     }
-    const packageDataObj = request.body.packageData && JSON.parse(request.body.packageData) || {};
+    const recipeDataObj = request.body.recipeData && JSON.parse(request.body.recipeData) || {};
 
-    if (!packageDataObj.id) {
-      return response.json({ error: true, message: 'invalid payload: package data not loaded' });
+    if (!recipeDataObj.id) {
+      return response.json({ error: true, message: 'invalid payload: recipe data not loaded' });
     }
-    if (packageDataObj.id !== package_id) {
-      return response.json({ error: true, message: 'invalid payload: package auth failed' });
+    if (recipeDataObj.id !== recipe_id) {
+      return response.json({ error: true, message: 'invalid payload: recipe auth failed' });
     }
-    if (packageDataObj.helper_id !== response.locals.you.id) {
+    if (recipeDataObj.helper_id !== response.locals.you.id) {
       return response.json({ error: true, message: 'invalid request: not authorized' });
     }
 
@@ -402,11 +402,11 @@ function add_package_tracking_update(request, response) {
     }
 
     const createPackageTrackingUpdatesObj = {
-      package_id,    
+      recipe_id,    
       message: request.body.description.trim()
     };
 
-    const image_file = request.files && request.files.tracking_update_icon_input || null;
+    const image_file = request.files && request.files.cook_request_update_icon_input || null;
     if(image_file) {
       const type = image_file.mimetype.split('/')[1];
       if(!chamber.allowed_images.includes(type)) {
@@ -418,20 +418,20 @@ function add_package_tracking_update(request, response) {
       }
     }
 
-    const packageTrackingUpdateModel = await models.PackageTrackingUpdates.create(createPackageTrackingUpdatesObj);
-    const packageTrackingUpdate = {
-      ...packageTrackingUpdateModel.dataValues,
+    const recipeTrackingUpdateModel = await models.PackageTrackingUpdates.create(createPackageTrackingUpdatesObj);
+    const recipeTrackingUpdate = {
+      ...recipeTrackingUpdateModel.dataValues,
       helper: {
         ...response.locals.you
       }
     };
 
     const createNotificationObj = {
-      from_id: packageDataObj.helper_id,
-      to_id: packageDataObj.owner_id,
+      from_id: recipeDataObj.helper_id,
+      to_id: recipeDataObj.owner_id,
       action: chamber.EVENT_TYPES.NEW_PACKAGE_TRACKING_UPDATE,
       target_type: chamber.Notification_Target_Types.PACKAGE,
-      target_id: package_id,
+      target_id: recipe_id,
     };
     const notificationUpdateModel = await models.Notifications.create(createNotificationObj);
 
@@ -440,18 +440,18 @@ function add_package_tracking_update(request, response) {
       from: { ...response.locals.you },
     };
 
-    request.io.emit(`for:user-${packageDataObj.owner_id}`, {
+    request.io.emit(`for:user-${recipeDataObj.owner_id}`, {
       event: request.EVENT_TYPES.NEW_PACKAGE_TRACKING_UPDATE,
-      message: `New package tracking update`,
+      message: `New cook request update`,
       data: { 
         notification, 
-        package: packageDataObj,
-        package_tracking_update: packageTrackingUpdate,
+        recipe: recipeDataObj,
+        cook_request_update: recipeTrackingUpdate,
       }
     });
 
     return response.json({
-      package_tracking_update: packageTrackingUpdate,
+      cook_request_update: recipeTrackingUpdate,
       message: 'Tracking updated!' 
     });
   })()
@@ -465,8 +465,8 @@ module.exports = {
   sign_up,
   sign_out,
   create_review,
-  create_package,
-  toggle_delivery_request,
+  create_recipe,
+  toggle_cook_request,
   submit_reset_password_request,
-  add_package_tracking_update,
+  add_cook_request_update,
 }
