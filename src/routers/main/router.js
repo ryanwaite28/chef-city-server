@@ -26,14 +26,12 @@ router.get('/get_user_reviews/:user_id/:review_id', GET.get_user_reviews);
 
 router.get('/get_user_recipes/:owner_id', GET.get_user_recipes);
 router.get('/get_user_recipes/:owner_id/:recipe_id', GET.get_user_recipes);
-router.get('/get_user_delivering/:helper_id', GET.get_user_delivering);
-router.get('/get_user_delivering/:helper_id/:recipe_id', GET.get_user_delivering);
 router.get('/get_recipe_by_id/:recipe_id', GET.get_recipe_by_id);
 router.get('/check_cook_request/:recipe_id/:user_id', GET.check_cook_request);
 router.get('/check_recipe_cook_requests/:recipe_id', GET.check_recipe_cook_requests);
 router.get('/check_recipe_cook_requests/:recipe_id/:cook_request_id', GET.check_recipe_cook_requests);
-router.get('/get_recipe_tracking_updates/:recipe_id', GET.get_recipe_tracking_updates);
-router.get('/get_recipe_tracking_updates/:recipe_id/:recipe_tracking_update_id', GET.get_recipe_tracking_updates);
+router.get('/get_cook_request_updates/:recipe_id', GET.get_cook_request_updates);
+router.get('/get_cook_request_updates/:recipe_id/:recipe_tracking_update_id', GET.get_cook_request_updates);
 router.get('/get_search_recipes', GET.get_search_recipes);
 
 

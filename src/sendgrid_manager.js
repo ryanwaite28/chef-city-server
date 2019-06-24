@@ -28,6 +28,6 @@ function send_email(from, to, subject, html) {
 
 
 module.exports = {
-  sgMail,
-  send_email
+  // sgMail,
+  send_email,
 }

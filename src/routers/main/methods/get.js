@@ -16,7 +16,7 @@ function welcome(request, response) {
 
 function sign_out(request, response) {
   request.session.reset();
-  return response.json({ online: false, successful: true });
+  return response.json({ online: false, successful: true, message: "Signed out successfully!" });
 }
 
 function check_session(request, response) {

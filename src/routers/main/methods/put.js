@@ -60,7 +60,7 @@ function sign_in(request, response) {
 
 function sign_out(request, response) {
   request.session.reset();
-  return response.json({ online: false, successful: true });
+  return response.json({ online: false, successful: true, message: "Signed out successfully!" });
 }
 
 
@@ -260,7 +260,7 @@ function update_paypal_email(request, response) {
   })()
 }
 
-function update_package(request, response) {
+function update_recipe(request, response) {
   (async function(){
     try {
       let {
@@ -403,7 +403,7 @@ function submit_password_reset_code(request, response) {
   })()
 }
 
-function accept_package_delivery_request(request, response) {
+function accept_recipe_cook_request(request, response) {
   (async function(){
     let { package_delivery_request_id } = request.params;
     if (!package_delivery_request_id) {
@@ -458,63 +458,6 @@ function accept_package_delivery_request(request, response) {
   })()
 }
 
-function package_mark_as_delivered(request, response) {
-  (async function(){
-    const package_id = parseInt(request.params.package_id, 10);
-    if (!package_id) {
-      return response.json({ error: true, message: 'package id is required in the request route' });
-    }
-    const packageDataObj = request.body.packageData && JSON.parse(request.body.packageData) || {};
-
-    console.log({ package_id, packageDataObj });
-
-    if (!packageDataObj.id) {
-      return response.json({ error: true, message: 'invalid payload: package data not loaded' });
-    }
-    if (packageDataObj.id !== package_id) {
-      return response.json({ error: true, message: 'invalid payload: package auth failed' });
-    }
-    if (packageDataObj.helper_id !== response.locals.you.id) {
-      return response.json({ error: true, message: 'invalid request: not authorized' });
-    }
-
-    await models.Recipes.update({ fulfilled: true }, { where: { id: package_id } });
-
-    const packageTrackingUpdateModel = await models.PackageTrackingUpdates.create({
-      package_id,
-      message: 'Delivered!'
-    });
-    const packageTrackingUpdate = {
-      ...packageTrackingUpdateModel.dataValues,
-      helper: {
-        ...response.locals.you
-      }
-    };
-
-    const notificationUpdateModel = await models.Notifications.create({
-      from_id: packageDataObj.helper_id,
-      to_id: packageDataObj.owner_id,
-      action: chamber.EVENT_TYPES.PACKAGE_MARKED_DELIVERED,
-      target_type: chamber.Notification_Target_Types.PACKAGE,
-      target_id: package_id,
-    });
-    const notification = {
-      ...notificationUpdateModel.dataValues,
-      from: { ...response.locals.you },
-    };
-
-    request.io.emit(`for:user-${packageDataObj.owner_id}`, {
-      event: request.EVENT_TYPES.PACKAGE_MARKED_DELIVERED,
-      data: { notification, package: packageDataObj }
-    });
-    
-    return response.json({
-      message: 'Marked as delivered successfully!',
-      package_tracking_update: packageTrackingUpdate,
-    });
-  })()
-}
-
 
 
 
@@ -528,8 +471,7 @@ module.exports = {
   update_info,
   update_email,
   update_paypal_email,
-  update_package,
+  update_recipe,
   submit_password_reset_code,
-  accept_package_delivery_request,
-  package_mark_as_delivered,
+  accept_recipe_cook_request,
 }
