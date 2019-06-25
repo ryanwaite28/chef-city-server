@@ -7,7 +7,8 @@ if(process.env.DATABASE_URL) {
     dialect: 'postgres',
     dialectOptions: {
       ssl: true
-    }
+    },
+    logging: false,
   });
 } else {
   db_env = 'Development';
@@ -15,6 +16,7 @@ if(process.env.DATABASE_URL) {
     password: null,
     dialect: 'sqlite',
     storage: 'database.sqlite',
+    logging: false,
   });
 }
 

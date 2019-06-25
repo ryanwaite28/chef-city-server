@@ -223,6 +223,7 @@ function CheckToken(request, response, next) {
 }
 
 function SessionRequired(request, response, next) {
+  console.log('auth called');
   (async function(){
     if(!request.session.id) {
       let auth = request.get('Authorization'); // user's token
@@ -246,6 +247,75 @@ function SessionRequired(request, response, next) {
   })()
 }
 
+const whitelist_domains = [
+  // dev origins
+  'http://localhost:7600',
+  'http://localhost:9500',
+
+  // prod origins
+  'https://rmw-chef-city-client.herokuapp.com/'
+];
+
+const corsOptions = {
+  // https://expressjs.com/en/resources/middleware/cors.html
+  origin: function (origin, callback) {
+    const originIsAllowed = whitelist_domains.includes(origin);
+    console.log({
+      origin,
+      callback,
+      originIsAllowed,
+    });
+    if (originIsAllowed) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+/* 
+
+No longer needed
+---
+
+const corsFn = function corsFn(request, response, next) {
+  const requestOrigin = request.get('origin');
+  const originIsAllowed = whitelist_domains.includes(requestOrigin);
+  const isGetRequest = request.method.toLowerCase() === 'get';
+
+  console.log({
+    requestOrigin,
+    originIsAllowed,
+    isGetRequest,
+  });
+
+  if (isGetRequest) {
+    next();
+  } else {
+    if (originIsAllowed) {
+      response.header("Access-Control-Allow-Origin", requestOrigin);
+      response.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+      response.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+      next();
+    } else {
+      response.status(401).send('unknown origin: ' + requestOrigin);
+    }
+  }
+};
+
+const corsEnable = function corsEnable(req, res, next) {
+  console.log('enabling cors...');
+  const requestOrigin = request.get('origin');
+  res.header('Access-Control-Allow-Origin', requestOrigin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.send(200);
+}
+
+--- */
+
 module.exports = {
   EVENT_TYPES,
   Notification_Target_Types,
@@ -263,5 +333,7 @@ module.exports = {
   capitalize,
   generateToken,
   CheckToken,
-  SessionRequired
+  SessionRequired,
+  corsOptions,
+  whitelist_domains,
 }

@@ -22,7 +22,7 @@ function sign_out(request, response) {
 function check_session(request, response) {
   (async function() {
     try {
-      if(request.session.id && request.session.you){
+      if(request.session.id){
         var get_user = await models.Users.findOne({ where: { id: request.session.you.id } });
         var user = get_user.dataValues;
         delete user['password'];
