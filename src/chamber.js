@@ -253,7 +253,8 @@ const whitelist_domains = [
   'http://localhost:9500',
 
   // prod origins
-  'https://rmw-chef-city-client.herokuapp.com/'
+  'https://rmw-chef-city-client.herokuapp.com',
+  'https://rmw-chef-city-server.herokuapp.com',
 ];
 
 const corsOptions = {
