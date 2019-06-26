@@ -228,7 +228,7 @@ function SessionRequired(request, response, next) {
     if(!request.session.id) {
       let auth = request.get('Authorization'); // user's token
       if(!auth) { return response.json({ error: true, message: 'No Authorization header...' }); }
-      var token_record = await models.SessionTokens.findOne({ where: { token: auth } });
+      var token_record = await models.Tokens.findOne({ where: { token: auth } });
       if(!token_record) { return response.json({ error: true, message: 'Auth token is invalid...' }); }
       let token = token_record.dataValues;
       if(token.user_agent !== request.get('user-agent')) {
