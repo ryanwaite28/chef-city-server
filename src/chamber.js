@@ -255,6 +255,7 @@ const whitelist_domains = [
   // prod origins
   'https://rmw-chef-city-client.herokuapp.com',
   'https://rmw-chef-city-server.herokuapp.com',
+  'https://ryanwaite28.github.io'
 ];
 
 const corsOptions = {
