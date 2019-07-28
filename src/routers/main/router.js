@@ -9,8 +9,6 @@ const chamber = require('../../chamber');
 
 
 
-const router = express.Router();
-
 const users_router = require('./model-routers/users/users.router').router;
 const user_ratings_router = require('./model-routers/user_ratings/user_ratings.router').router;
 const follows_router = require('./model-routers/follows/follows.router').router;
@@ -33,6 +31,10 @@ const conversation_members_router = require('./model-routers/conversation_member
 const conversation_messages_router = require('./model-routers/conversation_messages/conversation_messages.router').router;
 const message_senders_router = require('./model-routers/message_senders/message_senders.router').router;
 const messages_router = require('./model-routers/messages/messages.router').router;
+
+
+
+const router = express.Router();
 
 router.use('/users', users_router);
 router.use('/user_ratings', user_ratings_router);

@@ -367,9 +367,9 @@ models.Users.hasMany(models.UserRatings, { as: 'user_reviews_written', foreignKe
 models.UserRatings.belongsTo(models.Users, { as: 'user', foreignKey: 'user_id', targetKey: 'id' });
 models.UserRatings.belongsTo(models.Users, { as: 'writer', foreignKey: 'writer_id', targetKey: 'id' });
 
-models.Users.hasMany(models.Recipes, { as: 'user_recipes', foreignKey: 'owner_id', sourceKey: 'id' });
+models.Users.hasMany(models.Recipes, { as: 'user_recipes', foreignKey: 'creator_id', sourceKey: 'id' });
 models.Users.hasMany(models.Recipes, { as: 'user_helping', foreignKey: 'helper_id', sourceKey: 'id' });
-models.Recipes.belongsTo(models.Users, { as: 'owner', foreignKey: 'owner_id', targetKey: 'id' });
+models.Recipes.belongsTo(models.Users, { as: 'creator', foreignKey: 'creator_id', targetKey: 'id' });
 models.Recipes.belongsTo(models.Users, { as: 'helper', foreignKey: 'helper_id', targetKey: 'id' });
 
 models.Users.hasMany(models.CookRequests, { as: 'user_cook_requests', foreignKey: 'user_id', sourceKey: 'id' });

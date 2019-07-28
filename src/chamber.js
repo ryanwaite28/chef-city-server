@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const models = require('./models').models;
 
 const specialCaracters = ['!','@','#','$','%','&','+',')',']','}',':',';','?'];
-const allowed_images = ['jpg', 'jpeg', 'png'];
+const allowed_images = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'];
 const app_secret = `9td25k!l0zraa4z9lfpo@jb)#WER}{Pojfugk8jgosryt87ktjrhrgf%#*&JYruh*)#WER}{Pojfugk8jgosrugi+)(UIUpJ{K}Pjghs`;
 const algorithm = 'aes-256-ctr';
 const token_separator = '|';
@@ -227,12 +227,12 @@ function SessionRequired(request, response, next) {
   (async function(){
     if(!request.session.id) {
       let auth = request.get('Authorization'); // user's token
-      if(!auth) { return response.json({ error: true, message: 'No Authorization header...' }); }
+      if(!auth) { return response.status(401).json({ error: true, message: 'No Authorization header...' }); }
       var token_record = await models.Tokens.findOne({ where: { token: auth } });
-      if(!token_record) { return response.json({ error: true, message: 'Auth token is invalid...' }); }
+      if(!token_record) { return response.status(401).json({ error: true, message: 'Auth token is invalid...' }); }
       let token = token_record.dataValues;
       if(token.user_agent !== request.get('user-agent')) {
-        return response.json({ error: true, message: 'Token used from invalid client...' });
+        return response.status(401).json({ error: true, message: 'Token used from invalid client...' });
       }
       var get_user = await models.Users.findOne({ where: { id: token.user_id } });
       var user = get_user.dataValues;
@@ -262,11 +262,11 @@ const corsOptions = {
   // https://expressjs.com/en/resources/middleware/cors.html
   origin: function (origin, callback) {
     const originIsAllowed = whitelist_domains.includes(origin);
-    console.log({
-      origin,
-      callback,
-      originIsAllowed,
-    });
+    // console.log({
+    //   origin,
+    //   callback,
+    //   originIsAllowed,
+    // });
     if (originIsAllowed) {
       callback(null, true)
     } else {

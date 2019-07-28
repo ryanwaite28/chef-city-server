@@ -38,6 +38,7 @@ const socketConnectionsMap = new Map();
 
 io.on('connection', (socket) => {
   console.log('new socket:', socket);
+  socketConnectionsMap.set(socket, socket);
 });
 
 app.use(function(request, response, next){
