@@ -174,6 +174,27 @@ function get_random_users(request, response) {
   })
 }
 
+function get_random_recipes(request, response) {
+  models.Recipes.findAll({
+    limit: 10,
+    order: [Sequelize.fn( 'RANDOM' )],
+    include: [{
+      model: models.Users,
+      as: 'creator',
+      attributes: [
+        'id', 
+        'displayname', 
+        'username',
+        'email',
+        'icon_link',
+      ]
+    }]
+  })
+  .then(resp => {
+    return response.json({ recipes: resp });
+  })
+}
+
 function check_cook_request(request, response) {
   const recipe_id = parseInt(request.params.recipe_id);
   const chef_id = parseInt(request.params.chef_id);
@@ -274,4 +295,5 @@ module.exports = {
   check_recipe_cook_requests,
   get_cook_request_updates,
   get_search_recipes,
+  get_random_recipes,
 }
