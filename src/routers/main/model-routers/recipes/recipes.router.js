@@ -1,6 +1,9 @@
 'use strict';
 
 const express = require('express');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
 const chamber = require('../../../../chamber');
 const models = require('../../../../models').models;
 const cloudinary_manager = require('../../../../cloudinary_manager');
@@ -8,11 +11,7 @@ const sendgrid_manager = require('../../../../sendgrid_manager');
 
 const router = express.Router();
 
-router.get('/', (request, response) => {
-
-});
-
-router.get('/:id', async (request, response) => {
+const getRecipesRouteHandler = async (request, response) => {
   const id = parseInt(request.params.id);
   const recipeModel = await models.Recipes.findOne({
     where: { id },
@@ -30,9 +29,9 @@ router.get('/:id', async (request, response) => {
   });
   
   response.status(200).json({ recipe: recipeModel });
-});
+};
 
-router.post('/', chamber.SessionRequired, async (request, response) => {
+const postRecipesRouteHandler = async (request, response) => {
   const title = request.body['recipe-title'];
   const desc = request.body['recipe-description'];
   const ingredients = request.body['recipe-ingredients'];
@@ -83,6 +82,7 @@ router.post('/', chamber.SessionRequired, async (request, response) => {
         creationObj.image_link = imgData.result.secure_url
       } catch(e) {
         // 
+        return response.status(500).json({ error: true, message: 'Could not process this request at this time...' });
       }
     }
   }
@@ -99,15 +99,23 @@ router.post('/', chamber.SessionRequired, async (request, response) => {
     newRecipe,
     message: creationObj.image_id ? 'New recipe created!' : 'New recipe created. image could not be uploaded at this time.'
   });
-});
+};
 
-router.put('/', chamber.SessionRequired, (request, response) => {
+const putRecipesRouteHandler = async (request, response) => {
 
-});
+};
 
-router.delete('/', chamber.SessionRequired, (request, response) => {
+const deleteRecipesRouteHandler = async (request, response) => {
 
-});
+};
+
+/** */
+
+// router.get('/', getRecipesRouteHandler);
+router.get('/:id', getRecipesRouteHandler);
+router.post('/', chamber.SessionRequired, postRecipesRouteHandler);
+router.put('/', chamber.SessionRequired, putRecipesRouteHandler);
+router.delete('/', chamber.SessionRequired, deleteRecipesRouteHandler);
 
 module.exports = {
   router,
