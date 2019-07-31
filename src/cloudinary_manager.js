@@ -29,7 +29,6 @@ function store(file, public_id) {
     if(oneCredentialMissing) {
       console.log({ file, public_id, cloud_name, api_key, api_secret });
       const errorObj = { msg: `One cloudinary credential is missing; upload attempt canceled.` };
-      console.log(errorObj);
       return reject(errorObj);
     }
 

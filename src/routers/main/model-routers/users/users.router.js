@@ -83,15 +83,15 @@ const putUserRouteHandler = async (request, response) => {
   try {
     const imgData = await cloudinary_manager.store(image, request.session.you.icon_id);
     const updateObj = { icon_link: imgData.result.secure_url, icon_id: imgData.result.public_id };
-    await models.Users.updateObj(updateObj, { where: { id: request.session.you.id } });
+    const updated = await models.Users.update(updateObj, { where: { id: request.session.you.id } });
     Object.assign(request.session.you, updateObj);
-    return response.status(400).json({ 
-      error: true, 
-      message: 'Invalid file type: jpg, jpeg or png required...',
+    return response.status(200).json({
+      message: 'Updated profile icon successfully!',
       new_icon_link:  updateObj.icon_link,
     });
   } catch(e) {
     // 
+    console.log(e);
     return response.status(500).json({ error: true, message: 'Could not process this request at this time...' });
   }
 };
