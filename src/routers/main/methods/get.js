@@ -133,17 +133,19 @@ function get_recipe_by_id(request, response) {
 }
 
 function get_user_recipes(request, response) {
-  let { owner_id, recipe_id } = request.params;
+  let { creator_id, recipe_id } = request.params;
   models.Recipes.findAll({
-    where: (!recipe_id ? { owner_id } : { owner_id, id: { [Op.lt]: recipe_id } }),
+    where: (!recipe_id ? { creator_id } : { creator_id, id: { [Op.lt]: recipe_id } }),
     include: [{
       model: models.Users,
-      as: 'owner',
-      attributes: { exclude: ['password'] }
-    }, {
-      model: models.Users,
-      as: 'helper',
-      attributes: { exclude: ['password'] }
+      as: 'creator',
+      attributes: [
+        'id', 
+        'displayname', 
+        'username',
+        'email',
+        'icon_link',
+      ]
     }],
     limit: 5,
     order: [["id","DESC"]]

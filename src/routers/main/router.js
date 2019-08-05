@@ -73,8 +73,8 @@ router.get('/get_user_by_username/:username', GET.get_user_by_username);
 router.get('/get_user_reviews/:user_id', GET.get_user_reviews);
 router.get('/get_user_reviews/:user_id/:review_id', GET.get_user_reviews);
 
-router.get('/get_user_recipes/:owner_id', GET.get_user_recipes);
-router.get('/get_user_recipes/:owner_id/:recipe_id', GET.get_user_recipes);
+router.get('/get_user_recipes/:creator_id', GET.get_user_recipes);
+router.get('/get_user_recipes/:creator_id/:recipe_id', GET.get_user_recipes);
 router.get('/get_recipe_by_id/:recipe_id', GET.get_recipe_by_id);
 router.get('/check_cook_request/:recipe_id/:user_id', GET.check_cook_request);
 router.get('/check_recipe_cook_requests/:recipe_id', GET.check_recipe_cook_requests);
